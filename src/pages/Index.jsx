@@ -7,36 +7,52 @@ const sampleProducts = [
     id: 1,
     name: "Smartphone",
     description: "Latest model with advanced features",
-    price: "$699",
+    price: 699,
+    category: "smartphone",
     image: "https://via.placeholder.com/150",
   },
   {
     id: 2,
     name: "Laptop",
     description: "High performance laptop for work and play",
-    price: "$999",
+    price: 999,
+    category: "laptop",
     image: "https://via.placeholder.com/150",
   },
   {
     id: 3,
     name: "Headphones",
     description: "Noise-cancelling over-ear headphones",
-    price: "$199",
+    price: 199,
+    category: "headphones",
     image: "https://via.placeholder.com/150",
   },
 ];
 
 const Index = () => {
   const [searchQuery, setSearchQuery] = useState("");
+  const [category, setCategory] = useState("");
+  const [priceRange, setPriceRange] = useState([0, 1000]);
 
   const handleSearchChange = (event) => {
     setSearchQuery(event.target.value.toLowerCase());
   };
 
-  const filteredProducts = sampleProducts.filter(product =>
-    product.name.toLowerCase().includes(searchQuery) ||
-    product.description.toLowerCase().includes(searchQuery)
-  );
+  const handleCategoryChange = (event) => {
+    setCategory(event.target.value);
+  };
+
+  const handlePriceRangeChange = (event) => {
+    const value = event.target.value.split("-");
+    setPriceRange([parseInt(value[0]), parseInt(value[1])]);
+  };
+
+  const filteredProducts = sampleProducts.filter(product => {
+    const matchesCategory = category ? product.category === category : true;
+    const matchesPriceRange = product.price >= priceRange[0] && product.price <= priceRange[1];
+    const matchesSearchQuery = product.name.toLowerCase().includes(searchQuery) || product.description.toLowerCase().includes(searchQuery);
+    return matchesCategory && matchesPriceRange && matchesSearchQuery;
+  });
   return (
     <Container maxW="container.xl" p={0}>
       {/* Navigation Bar */}
@@ -60,12 +76,23 @@ const Index = () => {
       {/* Products Section */}
       <Box py={10} px={4}>
         <Heading size="xl" textAlign="center" mb={10}>Featured Products</Heading>
-        <Input
-          placeholder="Search for products..."
-          mb={6}
-          value={searchQuery}
-          onChange={handleSearchChange}
-        />
+        <Flex mb={6} justifyContent="space-between">
+          <Input
+            placeholder="Search for products..."
+            value={searchQuery}
+            onChange={handleSearchChange}
+          />
+          <Select placeholder="Select category" onChange={handleCategoryChange}>
+            <option value="smartphone">Smartphone</option>
+            <option value="laptop">Laptop</option>
+            <option value="headphones">Headphones</option>
+          </Select>
+          <Select placeholder="Select price range" onChange={handlePriceRangeChange}>
+            <option value="0-100">$0 - $100</option>
+            <option value="100-500">$100 - $500</option>
+            <option value="500-1000">$500 - $1000</option>
+          </Select>
+        </Flex>
         <SimpleGrid columns={{ base: 1, md: 3 }} spacing={10}>
           {filteredProducts.map(product => (
             <Box key={product.id} borderWidth="1px" borderRadius="lg" overflow="hidden">
